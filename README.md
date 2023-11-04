@@ -35,7 +35,7 @@ Stateless widget dalam Flutter tidak menyimpan atau melacak perubahan status int
 - Membuat proyek flutter baru dengan nama Inventoriorio
 - Dalam direktori `lib`, membuat berkas baru dengan nama `menu.dart`.
 - Dalam direktori `lib`, mengisi berkas `main.dart` dengan :
-```
+```dart
 import 'package:flutter/material.dart';
 import 'package:inventoriorio/menu.dart';
 
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
 }
 ```
 - Dalam direktori `lib`, mengisi berkas `menu.dart` dengan:
-```
+```dart
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatelessWidget {
