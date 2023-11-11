@@ -193,3 +193,28 @@ class ItemCard extends StatelessWidget {
 ```
 
 </details>
+
+<details> 
+<summary>Tugas 8</summary>
+
+## Jelaskan perbedaan antara Navigator.push() dan Navigator.pushReplacement(), disertai dengan contoh mengenai penggunaan kedua metode tersebut yang tepat!
+
+
+
+## Jelaskan masing-masing layout widget pada Flutter dan konteks penggunaannya masing-masing!
+
+
+
+## Sebutkan apa saja elemen input pada form yang kamu pakai pada tugas kali ini dan jelaskan mengapa kamu menggunakan elemen input tersebut!
+
+
+
+## Bagaimana penerapan clean architecture pada aplikasi Flutter?
+
+
+
+## Step by step pengimplementasian
+
+
+
+</details>

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:inventoriorio/widgets/item_card.dart'; 
+import 'package:inventoriorio/widgets/left_drawer.dart';
+import 'package:inventoriorio/screens/item_form.dart'; 
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
@@ -18,6 +21,7 @@ class MyHomePage extends StatelessWidget {
           'Inventoriorio',
         ),
       ),
+      drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         // Widget wrapper yang dapat discroll
         child: Padding(
@@ -59,14 +63,6 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class Item {
-  final String name;
-  final IconData icon;
-  final Color color;
-
-  Item(this.name, this.icon, this.color);
-}
-
 class ItemCard extends StatelessWidget {
   final Item item;
 
@@ -84,6 +80,14 @@ class ItemCard extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
                 content: Text("Kamu telah menekan tombol ${item.name}!")));
+          // Navigate ke route yang sesuai (tergantung jenis tombol)
+          if (item.name == "Tambah Item") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ItemFormPage(),
+                ));
+          }
         },
         child: Container(
           // Container untuk menyimpan Icon dan Text
