@@ -199,22 +199,335 @@ class ItemCard extends StatelessWidget {
 
 ## Jelaskan perbedaan antara Navigator.push() dan Navigator.pushReplacement(), disertai dengan contoh mengenai penggunaan kedua metode tersebut yang tepat!
 
+Navigator.push():
+- Digunakan untuk menambahkan layar baru ke dalam tumpukan navigasi.
+- Memungkinkan pengguna kembali ke layar sebelumnya dengan menggunakan tombol kembali.
+- Menambahkan layar baru di atas layar saat ini.
+contoh penggunaan:
+```dart
+onTap: () {
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ItemFormPage(),
+      ));
+}
+```
 
+Navigator.pushReplacement():
+- Digunakan untuk menggantikan layar saat ini dengan layar baru.
+- Tidak memungkinkan pengguna untuk kembali ke layar sebelumnya.
+- Berguna ketika ingin menggantikan layar login dengan layar utama setelah pengguna berhasil masuk.
+contoh penggunaan:
+```dart 
+onTap: () {
+  Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyHomePage(),
+      ));
+}
+```
 
 ## Jelaskan masing-masing layout widget pada Flutter dan konteks penggunaannya masing-masing!
 
-
+1. Container: Widget dasar untuk mengatur properti seperti padding, margin, dan warna latar belakang. Digunakan sebagai wadah untuk elemen-elemen lainnya.
+2. Row: Menyusun elemen-elemen secara horizontal.
+3. Column: Menyusun elemen-elemen secara vertikal.
+4. ListView: Menampilkan daftar elemen secara vertikal yang dapat di-scroll.
+5. GridView: Menyusun elemen-elemen dalam bentuk grid, baik secara vertikal maupun horizontal.
+6. Stack: Menumpuk elemen-elemen di atas satu sama lain. Digunakan untuk tata letak yang lebih kompleks, di mana elemen-elemen mungkin saling tumpang tindih.
+7. Expanded: Digunakan di dalam Row atau Column untuk memberikan ruang yang setara untuk anak-anaknya, memanfaatkan sebanyak mungkin ruang yang tersedia.
+8. Flexible: Memberikan fleksibilitas pada widget-child di dalam Row atau Column.
+9. Wrap: Membungkus elemen-elemen ke baris baru jika melebihi lebar yang ditentukan.
+10. SizedBox: Menentukan dimensi widget dengan lebar dan tinggi tertentu.
 
 ## Sebutkan apa saja elemen input pada form yang kamu pakai pada tugas kali ini dan jelaskan mengapa kamu menggunakan elemen input tersebut!
 
+Elemen input yang dipakai untuk form adalah `TextFormField`, digunakan untuk memasukkan input berupa teks
 
+1. TextFormField untuk Nama Item:
+   - Decoration: Digunakan untuk memberikan hint, label, dan gaya border pada input.
+   - onChanged: Mengambil nilai yang diinputkan dan menyimpannya ke dalam variabel `_name`.
+   - Validator: Memastikan bahwa input tidak boleh kosong.
+
+2. TextFormField untuk Jumlah Item:
+   - Decoration: Memberikan hint, label, dan gaya border pada input.
+   - onChanged: Mengambil nilai yang diinputkan, mengonversinya ke dalam tipe data `int`, dan menyimpannya ke dalam variabel `_amount`.
+   - Validator: Memastikan bahwa input tidak boleh kosong dan harus berupa angka.
+
+3. TextFormField untuk Deskripsi:
+   - Decoration: Memberikan hint, label, dan gaya border pada input.
+   - onChanged: Mengambil nilai yang diinputkan dan menyimpannya ke dalam variabel `_description`.
+   - Validator: Memastikan bahwa input tidak boleh kosong.
 
 ## Bagaimana penerapan clean architecture pada aplikasi Flutter?
 
-
+Clean Architecture berfokus pada pemisahan tanggung jawab dan ketergantungan antara lapisan-lapisan dalam aplikasi. Pada aplikasi Flutter, implementasi Clean Architecture melibatkan tiga lapisan utama: Presentation Layer, Domain Layer, dan Data Layer.
+- Presentation Layer: Menangani tampilan dan UI.
+- Domain Layer: Berisi logika dan aturan aplikasi.
+- Data Layer: Menangani akses data.
 
 ## Step by step pengimplementasian
 
+- Membuat navigasi dengan membuat drawer dengan nama berkas `left_drawer.dart` yang diisi:
+```dart
+import 'package:flutter/material.dart';
+import 'package:inventoriorio/screens/menu.dart';
+import 'package:inventoriorio/screens/item_form.dart'; 
 
+class LeftDrawer extends StatelessWidget {
+  const LeftDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.indigo,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Item List',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Padding(padding: EdgeInsets.all(10)),
+                Text(
+                  "Catat seluruh itemmu di sini!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home_outlined),
+            title: const Text('Halaman Utama'),
+            // Bagian redirection ke MyHomePage
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyHomePage(),
+                  ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_shopping_cart),
+            title: const Text('Tambah Item'),
+            // Bagian redirection ke ItemFormPage
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ItemFormPage(),
+                  ));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+- Kemudian membuat form input untuk menambahkan item dengan membuat berkas `item_form.dart` dan diisi:
+```dart
+import 'package:flutter/material.dart';
+import 'package:inventoriorio/widgets/left_drawer.dart';
+
+class ItemFormPage extends StatefulWidget {
+  const ItemFormPage({super.key});
+
+  @override
+  State<ItemFormPage> createState() => _ItemFormPageState();
+}
+
+class _ItemFormPageState extends State<ItemFormPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _name = "";
+  int _amount = 0;
+  String _description = "";
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(
+          child: Text(
+            'Form Tambah Item',
+          ),
+        ),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      drawer: const LeftDrawer(),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: "Nama Item",
+                  labelText: "Nama Item",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                onChanged: (String? value) {
+                  setState(() {
+                    _name = value!;
+                  });
+                },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Nama tidak boleh kosong!";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: "Jumlah item",
+                  labelText: "Jumlah item",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                onChanged: (String? value) {
+                  setState(() {
+                    _amount = int.parse(value!);
+                  });
+                },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Jumlah item tidak boleh kosong!";
+                  }
+                  if (int.tryParse(value) == null) {
+                    return "Jumlah item harus berupa angka!";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                  hintText: "Deskripsi",
+                  labelText: "Deskripsi",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                onChanged: (String? value) {
+                  setState(() {
+                    _description = value!;
+                  });
+                },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return "Deskripsi tidak boleh kosong!";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.indigo),
+                  ),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text('Item berhasil tersimpan'),
+                            content: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Nama: $_name'),
+                                  Text('Jumlah: $_amount'),
+                                  Text('Deskripsi: $_description'),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: const Text('OK'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                    _formKey.currentState!.reset();
+                  },
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+```
+- Selanjutnya memindahkan widget `Item` dari berkas `menu.dart` ke berkas baru `item_card.dart`.
+- Menambahkan fungsi navigasi pada widget `ItemCard` saat tombol `Tambah Item` ditekan akan menuju ke form input, dengan memodifikasi isi dari atribut `onTap` pada `InkWell` menjadi:
+```dart
+...
+Widget build(BuildContext context) {
+    return Material(
+      color: item.color,
+      child: InkWell(
+        // Area responsive terhadap sentuhan
+        onTap: () {
+          // Memunculkan SnackBar ketika diklik
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(
+                content: Text("Kamu telah menekan tombol ${item.name}!")));
+          // Navigate ke route yang sesuai (tergantung jenis tombol)
+          if (item.name == "Tambah Item") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ItemFormPage(),
+                ));
+          }
+        },
+        ...
+```
+- Melakukan pengaturan kembali pada berkas - berkas pada direktori `lib`. Membuat direktori baru dalam direktori `lib`, yaitu direktori `screens` dan `widgets`. Kemudian memindahkan berkas `item_form.dart` dan `menu.dart` ke direktori `screens`, dan memindahkan berkas `item_card.dart` dan `left_drawer.dart` ke direktori `widgets`.
 
 </details>
