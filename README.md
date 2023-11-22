@@ -596,6 +596,324 @@ List<Item> list_item = [];
 
 ## Step by step pengimplementasian
 
+- Pada proyek django:
+  - Membuat aplikasi baru `authentication`.
+  - Di `settings.py` main project menambahkan `corsheaders` ke `INSTALLED_APPS` dan `corsheaders.middleware.CorsMiddleware`.
+  - Di `settings.py` main project menambahkan beberapa variabel:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
+  - Di `views.py` app `authentication` menambahkan fungsi - fungsi baru:
+    - fungsi `login`
+    - fungsi `logout`
+    lalu mengatur routing url.
+  - Di `views.py` app `main` menambahkan fungsi baru:
+    - fungsi `create_item_flutter`
+    lalu mengatur routing url.
+- Pada flutter:
+  - Instal package:
+    flutter pub add provider
+    flutter pub add pbp_django_auth
+  - Menambahkan `CookieRequest` library ke semua child widgets dengan menggunakan `Provider` di root widget.
+  - Membuat berkas baru `login.dart` di `lib/screens` dan diisi:
+    ```dart
+    import 'package:inventoriorio/screens/menu.dart';
+    import 'package:flutter/material.dart';
+    import 'package:pbp_django_auth/pbp_django_auth.dart';
+    import 'package:provider/provider.dart';
 
+    void main() {
+        runApp(const LoginApp());
+    }
+
+    class LoginApp extends StatelessWidget {
+    const LoginApp({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+        return MaterialApp(
+            title: 'Login',
+            theme: ThemeData(
+                primarySwatch: Colors.blue,
+        ),
+        home: const LoginPage(),
+        );
+        }
+    }
+
+    class LoginPage extends StatefulWidget {
+        const LoginPage({super.key});
+
+        @override
+        _LoginPageState createState() => _LoginPageState();
+    }
+
+    class _LoginPageState extends State<LoginPage> {
+        final TextEditingController _usernameController = TextEditingController();
+        final TextEditingController _passwordController = TextEditingController();
+
+        @override
+        Widget build(BuildContext context) {
+            final request = context.watch<CookieRequest>();
+            return Scaffold(
+                appBar: AppBar(
+                    title: const Text('Login'),
+                ),
+                body: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                            TextField(
+                                controller: _usernameController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Username',
+                                ),
+                            ),
+                            const SizedBox(height: 12.0),
+                            TextField(
+                                controller: _passwordController,
+                                decoration: const InputDecoration(
+                                    labelText: 'Password',
+                                ),
+                                obscureText: true,
+                            ),
+                            const SizedBox(height: 24.0),
+                            ElevatedButton(
+                                onPressed: () async {
+                                    String username = _usernameController.text;
+                                    String password = _passwordController.text;
+
+                                    // Cek kredensial
+                                    // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+                                    // Untuk menyambungkan Android emulator dengan Django pada localhost,
+                                    // gunakan URL http://10.0.2.2/
+                                    final response = await request.login("http://127.0.0.1:8000/auth/login/", {
+                                    'username': username,
+                                    'password': password,
+                                    });
+                        
+                                    if (request.loggedIn) {
+                                        String message = response['message'];
+                                        String uname = response['username'];
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => MyHomePage()),
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            ..hideCurrentSnackBar()
+                                            ..showSnackBar(
+                                                SnackBar(content: Text("$message Selamat datang, $uname.")));
+                                        } else {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                                title: const Text('Login Gagal'),
+                                                content:
+                                                    Text(response['message']),
+                                                actions: [
+                                                    TextButton(
+                                                        child: const Text('OK'),
+                                                        onPressed: () {
+                                                            Navigator.pop(context);
+                                                        },
+                                                    ),
+                                                ],
+                                            ),
+                                        );
+                                    }
+                                },
+                                child: const Text('Login'),
+                            ),
+                        ],
+                    ),
+                ),
+            );
+        }
+    }
+    ```
+  - Membuat model kostum dengan manyalin data JSON dari url localhost ke web Quicktype lalu menyalin kode yang digenerate ke berkas baru `item.dart` di `lib/models`. 
+  - Melakukan flutter pub add http
+  - Menambahkan kode berikut di berkas `android/app/src/main/AndroidManifest.xml`:
+    <uses-permission android:name="android.permission.INTERNET" />
+  - Membuat berkas baru `list_item.dart` di `lib/screens` dan diisi:
+    ```dart
+    import 'package:flutter/material.dart';
+    import 'package:http/http.dart' as http;
+    import 'dart:convert';
+    import 'package:inventoriorio/models/item.dart';
+    import 'package:inventoriorio/widgets/left_drawer.dart';
+
+    class ItemPage extends StatefulWidget {
+        const ItemPage({Key? key}) : super(key: key);
+
+        @override
+        _ItemPageState createState() => _ItemPageState();
+    }
+
+    class _ItemPageState extends State<ItemPage> {
+    Future<List<Item>> fetchProduct() async {
+        // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+        var url = Uri.parse(
+            'http://127.0.0.1:8000/json/');
+        var response = await http.get(
+            url,
+            headers: {"Content-Type": "application/json"},
+        );
+
+        // melakukan decode response menjadi bentuk json
+        var data = jsonDecode(utf8.decode(response.bodyBytes));
+
+        // melakukan konversi data json menjadi object Product
+        List<Item> list_item = [];
+        for (var d in data) {
+            if (d != null) {
+                list_item.add(Item.fromJson(d));
+            }
+        }
+        return list_item;
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        return Scaffold(
+            appBar: AppBar(
+            title: const Text('Item'),
+            ),
+            drawer: const LeftDrawer(),
+            body: FutureBuilder(
+                future: fetchProduct(),
+                builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.data == null) {
+                        return const Center(child: CircularProgressIndicator());
+                    } else {
+                        if (!snapshot.hasData) {
+                        return const Column(
+                            children: [
+                            Text(
+                                "Tidak ada data item.",
+                                style:
+                                    TextStyle(color: Color(0xff59A5D8), fontSize: 20),
+                            ),
+                            SizedBox(height: 8),
+                            ],
+                        );
+                    } else {
+                        return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (_, index) => Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                        Text(
+                                        "${snapshot.data![index].fields.name}",
+                                        style: const TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                        ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text("${snapshot.data![index].fields.amount}"),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                            "${snapshot.data![index].fields.description}")
+                                    ],
+                                    ),
+                                ));
+                        }
+                    }
+                }));
+        }
+    }
+    ```
+  - Menambahkan `ListTile` baru di berkas `widgets/left_drawer.dart` dengan isi:
+    ```dart
+    // Kode ListTile Menu
+    ...
+    ListTile(
+            leading: const Icon(Icons.shopping_basket),
+            title: const Text('Daftar Item'),
+            onTap: () {
+                // Route menu ke halaman produk
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ItemPage()),
+                );
+            },
+        ),
+    ...
+    ```
+  - Menambahkan blok else if baru di berkas `widgets/item_card.dart`:
+    ```dart
+    else if (item.name == "Lihat Item") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const ItemPage()));
+          }
+    ```
+  - Mengganti isi pada `onPressed: ()` berkas `screens/item_form.dart` menjadi:
+    ```dart
+    ...
+    if (_formKey.currentState!.validate()) {
+                      // Kirim ke Django dan tunggu respons
+                      // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+                      final response = await request.postJson(
+                          "http://127.0.0.1:8000/create-flutter/",
+                          jsonEncode(<String, String>{
+                            'name': _name,
+                            'amount': _amount.toString(),
+                            'description': _description,
+                            // TODO: Sesuaikan field data sesuai dengan aplikasimu
+                          }));
+                      if (response['status'] == 'success') {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text("Item baru berhasil disimpan!"),
+                        ));
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content:
+                              Text("Terdapat kesalahan, silakan coba lagi."),
+                        ));
+                      }
+                    }
+    ...
+    ```
+  -  Menambahkan blok else if baru di berkas `widgets/item_card.dart`:
+  ```dart
+  ...
+  else if (item.name == "Logout") {
+        final response = await request.logout(
+            // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+            "http://<APP_URL_KAMU>/auth/logout/");
+        String message = response["message"];
+        if (response['status']) {
+          String uname = response["username"];
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("$message Sampai jumpa, $uname."),
+          ));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("$message"),
+          ));
+        }
+      }
+  ...
+  ```
 
 </details>
