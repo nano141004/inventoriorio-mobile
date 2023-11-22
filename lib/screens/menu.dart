@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:inventoriorio/widgets/item_card.dart'; 
 import 'package:inventoriorio/widgets/left_drawer.dart';
 import 'package:inventoriorio/screens/item_form.dart'; 
+import 'package:inventoriorio/screens/login.dart';
+import 'package:inventoriorio/screens/list_item.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
@@ -63,55 +68,4 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class ItemCard extends StatelessWidget {
-  final Item item;
 
-  const ItemCard(this.item, {super.key}); // Constructor
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: item.color,
-      child: InkWell(
-        // Area responsive terhadap sentuhan
-        onTap: () {
-          // Memunculkan SnackBar ketika diklik
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(
-                content: Text("Kamu telah menekan tombol ${item.name}!")));
-          // Navigate ke route yang sesuai (tergantung jenis tombol)
-          if (item.name == "Tambah Item") {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ItemFormPage(),
-                ));
-          }
-        },
-        child: Container(
-          // Container untuk menyimpan Icon dan Text
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  item.icon,
-                  color: Colors.black,
-                  size: 30.0,
-                ),
-                const Padding(padding: EdgeInsets.all(3)),
-                Text(
-                  item.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

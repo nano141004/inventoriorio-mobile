@@ -531,3 +531,71 @@ Widget build(BuildContext context) {
 - Melakukan pengaturan kembali pada berkas - berkas pada direktori `lib`. Membuat direktori baru dalam direktori `lib`, yaitu direktori `screens` dan `widgets`. Kemudian memindahkan berkas `item_form.dart` dan `menu.dart` ke direktori `screens`, dan memindahkan berkas `item_card.dart` dan `left_drawer.dart` ke direktori `widgets`.
 
 </details>
+
+<details> 
+<summary>Tugas 9</summary>
+
+## Apakah bisa kita melakukan pengambilan data JSON tanpa membuat model terlebih dahulu? Jika iya, apakah hal tersebut lebih baik daripada membuat model sebelum melakukan pengambilan data JSON?
+
+Bisa saja, jika data JSON cukup sederhana dan strukturnya tidak terlalu kompleks, langsung mengambil data tanpa membuat model mungkin lebih efisien. Namun, jika data kompleks, membuat model bisa membantu dalam mengorganisir data dengan lebih mudah.
+
+## Jelaskan fungsi dari CookieRequest dan jelaskan mengapa instance CookieRequest perlu untuk dibagikan ke semua komponen di aplikasi Flutter.
+
+CookieRequest adalah objek untuk mengelola permintaan dengan cookie dalam Flutter. Membagikan instance ke semua komponen memastikan konsistensi data, efisiensi sumber daya, dan kemudahan pemeliharaan, terutama jika cookie digunakan secara luas untuk otentikasi atau data bersama.
+
+## Jelaskan mekanisme pengambilan data dari JSON hingga dapat ditampilkan pada Flutter.
+
+- Melakukan flutter pub add http, melakukan import library dan package yang dibutuhkan:
+```dart
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+```
+- Melakukan fetch data dari url yang ditentukan:
+```dart
+Future<List<Item>> fetchProduct() async {
+    // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+    var url = Uri.parse(
+        'http://<URL_APP_KAMU>/json/');
+    var response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+    );
+```
+- Melakukan decode response menjadi json:
+```dart
+var data = jsonDecode(utf8.decode(response.bodyBytes));
+```
+- Melakukan konversi data json menjadi object(dalam tugas ini object Item):
+```dart
+List<Item> list_item = [];
+    for (var d in data) {
+        if (d != null) {
+            list_item.add(Item.fromJson(d));
+        }
+    }
+```
+- Data tersebut yaitu list_item sudah dapat digunakan untuk ditampilkan pada flutter.
+
+## Jelaskan mekanisme autentikasi dari input data akun pada Flutter ke Django hingga selesainya proses autentikasi oleh Django dan tampilnya menu pada Flutter.
+
+- Input Data Akun di Flutter
+- HTTP Request dari Flutter ke Django
+- Autentikasi di Django
+- Response ke Flutter
+- Navigasi menu di Flutter
+
+## Sebutkan seluruh widget yang kamu pakai pada tugas ini dan jelaskan fungsinya masing-masing.
+
+- TextField, adalah widget yang memungkinkan pengguna memasukkan teks.
+- SizedBox, adalah widget yang mengatur space kosong.
+- ElevatedButton, adalah tombol dengan efek elevasi.
+- SnackBar, adalah pesan yang muncul di bagian bawah layar.
+- AlertDialog, adalah dialog yang muncul untuk menampilkan pesan.
+- Navigator, adalah widget yang mengelola navigasi halaman.
+- Provider, adalah bagian dari package provider yang digunakan untuk manajemen state.
+
+## Step by step pengimplementasian
+
+
+
+</details>
